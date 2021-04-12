@@ -25,7 +25,7 @@ body {
 #doggo-image {
     margin: 10px;
     align-items: center;
-    width: 75%;
+    max-height: 750px;
     cursor: pointer;
     visibility: hidden;
 }
@@ -54,10 +54,6 @@ body {
     position: relative;
 }
 
-.img {
-    
-    align-items: center;
-}
 
 @media only screen and (max-width: 800px) {
     .wrapper {
