@@ -51,7 +51,7 @@ const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name,
     clearDoggoDescription()
 
     createDescriptionEntry({
-        label: "Name",
+        label: "Breed name",
         value: name
     })
 
@@ -59,11 +59,12 @@ const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name,
         label: "Bred for",
         value: bredFor
     })
-
-    createDescriptionEntry({
-        label: "Breed group",
+    if(breedGroup){
+        createDescriptionEntry({
+            label: "Breed group",
         value: breedGroup
-    })
+        })
+    }
 
     createDescriptionEntry({
         label: "Temperament",
@@ -92,13 +93,15 @@ const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name,
 }
 
 const getDogByBreed = async (breedId) => {
-    const loadingElement = document.querySelector('.loading')
-    loadingElement.classList.add('show-loading')
+    
+    const image = document.querySelector('#doggo-image')
+   
     const [data] = await fetch(baseUrl + "/images/search?include_breed=1&breed_id=" + breedId).then((data) => data.json())
     const {url: imageUrl, breeds} = data
     fillDoggoImage(imageUrl)
     fillDoggoDescription(breeds[0])
-    loadingElement.classList.remove("show-loading")
+    
+    image.style.visibility = "visible"
 }
 
 const changeDoggo = () => {
@@ -108,6 +111,3 @@ const changeDoggo = () => {
 }
 
 fetchDoggoBreeds() 
-
-
-// 10.00 I havd a big laugh because I was having problems getting the correct id from the select

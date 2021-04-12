@@ -7,17 +7,18 @@
     
     <link rel="stylesheet" href="styles.css">
     <link rel="shortcut icon" type="image/x-icon" href="dog.ico">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1 class="header">Select your dog</h1>
+    <h1 class="header">Select a Dog Breed</h1>
     <select class="breed-select" onchange="changeDoggo(this)">
-        <option value="">Select Doggo</option>
+        <option value="">Select a Dog Breed</option>
     </select>
-    <h3 class="loading">Loading...</h3>
-    <img id="doggo-image" src="" alt="doggo">
-    
-    <dl id="doggo-description"></dl>
-
+    <div class="wrapper">
+            <img id="doggo-image" src="" alt="doggo">
+            <dl id="doggo-description"></dl>
+    </div>
 
     <script src="dogs.js"></script>
 </body>
