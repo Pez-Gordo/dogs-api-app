@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="shortcut icon" type="image/x-icon" href="dog.ico">
+</head>
+<body>
+    <h1 class="header">Select your dog</h1>
+    <select class="breed-select" onchange="changeDoggo(this)">
+        <option value="">Select Doggo</option>
+    </select>
+    <h3 class="loading">Loading...</h3>
+    <img id="doggo-image" src="" alt="doggo">
+    
+    <dl id="doggo-description"></dl>
+
+
+    <script src="dogs.js"></script>
+</body>
+</html>
