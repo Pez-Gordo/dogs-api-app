@@ -1,16 +1,29 @@
-const baseUrl = "https://api.thedogapi.com/v1"
+const baseUrl = "api.php"
+const breedsById = new Map()
 
 const fetchDoggoBreeds = async () => {
-    
-    const response = await fetch(baseUrl + "/breeds")
-    const dogBreeds = await response.json()
-    populateDogSelect(dogBreeds)
-    console.log(dogBreeds)
+    try {
+        const response = await fetch(baseUrl + "?action=breeds")
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+        }
+
+        const dogBreeds = await response.json()
+
+        dogBreeds.forEach(breed => {
+            breedsById.set(String(breed.id), breed)
+        })
+
+        populateDogSelect(dogBreeds)
+    } catch (error) {
+        console.error("Unable to load dog breeds:", error)
+    }
 }
 
 const populateDogSelect = (breeds) => {
     const select = document.querySelector(".breed-select")
-    //console.log(breeds)
+
     const breedOptions = breeds.map(breed => {
         const option = document.createElement('option')
         option.text = breed.name
@@ -30,24 +43,33 @@ const fillDoggoImage = (imageUrl) => {
 const createDescriptionEntry = ({label, value}) => {
     const descriptionTerm = document.createElement('dt')
     descriptionTerm.textContent = label
+
     const descriptionValue = document.createElement('dd')
-    descriptionValue.textContent = value
+    descriptionValue.textContent = value ?? 'Unknown'
+
     const parentElement = document.querySelector('#doggo-description')
     parentElement.appendChild(descriptionTerm)
     parentElement.appendChild(descriptionValue)
-
 }
 
 const clearDoggoDescription = () => {
     const descriptionElement = document.querySelector("#doggo-description")
 
-    while(descriptionElement.firstChild) {
+    while (descriptionElement.firstChild) {
         descriptionElement.removeChild(descriptionElement.firstChild)
     }
 }
 
-const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name, temperament, life_span: lifeSpan, origin, height, weight}) => {
-    
+const fillDoggoDescription = ({
+    bred_for: bredFor,
+    breed_group: breedGroup,
+    name,
+    temperament,
+    life_span: lifeSpan,
+    origin,
+    height,
+    weight
+}) => {
     clearDoggoDescription()
 
     createDescriptionEntry({
@@ -59,10 +81,11 @@ const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name,
         label: "Bred for",
         value: bredFor
     })
-    if(breedGroup){
+
+    if (breedGroup) {
         createDescriptionEntry({
             label: "Breed group",
-        value: breedGroup
+            value: breedGroup
         })
     }
 
@@ -75,39 +98,88 @@ const fillDoggoDescription = ({bred_for: bredFor, breed_group: breedGroup, name,
         label: "Life span",
         value: lifeSpan
     })
-    if(origin){
+
+    if (origin) {
         createDescriptionEntry({
             label: "Origin",
             value: origin
         })
     }
+
     createDescriptionEntry({
         label: "Height (cm)",
-        value: height.metric
-        
+        value: height?.metric
     })
+
     createDescriptionEntry({
         label: "Weight (Kg)",
-        value: weight.metric
+        value: weight?.metric
     })
+}
+
+const getNoImageMessage = () => {
+    let message = document.querySelector("#doggo-no-image")
+
+    if (!message) {
+        message = document.createElement("p")
+        message.id = "doggo-no-image"
+        message.textContent = "No image available for this breed."
+        message.style.display = "none"
+
+        const image = document.querySelector("#doggo-image")
+        image.insertAdjacentElement("afterend", message)
+    }
+
+    return message
 }
 
 const getDogByBreed = async (breedId) => {
-    
-    const image = document.querySelector('#doggo-image')
-   
-    const [data] = await fetch(baseUrl + "/images/search?include_breed=1&breed_id=" + breedId).then((data) => data.json())
-    const {url: imageUrl, breeds} = data
-    fillDoggoImage(imageUrl)
-    fillDoggoDescription(breeds[0])
-    
-    image.style.visibility = "visible"
+    if (!breedId) {
+        return
+    }
+
+    const breed = breedsById.get(String(breedId))
+
+    if (!breed) {
+        console.error("Unknown dog breed:", breedId)
+        return
+    }
+
+    fillDoggoDescription(breed)
+
+    const image = document.querySelector("#doggo-image")
+    const noImageMessage = getNoImageMessage()
+
+    image.style.visibility = "hidden"
+    image.removeAttribute("src")
+    noImageMessage.style.display = "none"
+
+    try {
+        const response = await fetch(
+            baseUrl + "?action=image&breed_id=" + encodeURIComponent(breedId)
+        )
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+        }
+
+        const data = await response.json()
+        const dogImage = data?.[0]
+
+        if (dogImage?.url) {
+            fillDoggoImage(dogImage.url)
+            image.style.visibility = "visible"
+        } else {
+            noImageMessage.style.display = "block"
+        }
+    } catch (error) {
+        console.error("Unable to load dog image:", error)
+        noImageMessage.style.display = "block"
+    }
 }
 
-const changeDoggo = () => {
-
-    console.log(event.target.value)
-    getDogByBreed(event.target.value)
+const changeDoggo = (select) => {
+    getDogByBreed(select.value)
 }
 
-fetchDoggoBreeds() 
+fetchDoggoBreeds()
